@@ -55,7 +55,7 @@ Using `npm start` you can start using the local endpoint with `http://localhost:
 ### Adding a book
 
 ```bash
-curl -X POST -d @input.json http://localhost:3000/add
+curl -X POST -d @input.json http://localhost:3000/book
 ```
 
 Which should respond back with a `201` status.
@@ -63,7 +63,7 @@ Which should respond back with a `201` status.
 ### Removing a book
 
 ```bash
-curl -X DELETE -d '{"name": "Team Topologies"}' http://localhost:3000/add
+curl -X DELETE -d '{"name": "Team Topologies"}' http://localhost:3000/book
 ```
 
 Which should respond back with a `204` status.
