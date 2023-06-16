@@ -20,10 +20,10 @@ graph TD;
 
 ```mermaid
 graph TD;
-    API Gateway-->AddBook;
+    API_Gateway-->AddBook;
     AddBook-->DynamoDB;
-    DynamoDB-->DynamoDB Stream;
-    DynamoDB Stream-->ChangeProcessor;
+    DynamoDB-->DynamoDB_Stream;
+    DynamoDB_Stream-->ChangeProcessor;
     ChangeProcessor-->BookAdded;
 ```
 
