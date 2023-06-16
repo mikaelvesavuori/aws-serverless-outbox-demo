@@ -12,7 +12,15 @@ When you call the API to add or remove a book...
 
 ```mermaid
 graph TD;
-    PI Gateway-->AddBook;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
+```mermaid
+graph TD;
+    API Gateway-->AddBook;
     AddBook-->DynamoDB;
     DynamoDB-->DynamoDB Stream;
     DynamoDB Stream-->ChangeProcessor;
