@@ -12,8 +12,8 @@ When you call the API to add or remove a book...
 
 ```mermaid
 graph TD;
-    Endpoint (API Gateway)-->AddBook (Lambda);
-    AddBook (Lambda)-->DynamoDB;
+    PI Gateway-->AddBook;
+    AddBook-->DynamoDB;
     DynamoDB-->DynamoDB Stream;
     DynamoDB Stream-->ChangeProcessor;
     ChangeProcessor-->BookAdded;
