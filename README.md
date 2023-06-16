@@ -2,6 +2,8 @@
 
 This repository demonstrates the serverless [outbox pattern](https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/aws-reference-architecture-hybrid-domain-consistency-ra.pdf?did=wp_card&trk=wp_card) as applied to a serverless architecture in AWS. An easier execution than many traditional similar solutions, here we can use DynamoDB and its [Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html) capability to solve the messaging/queuing otherwise required.
 
+The outbox pattern allows us to dissociate the processes involved in performing an operation and emitting a resulting event of that operation happening. By making another party, in our case the database, responsible for triggering the event emission, we have a better decoupling of our responsibilities.
+
 The key infrastructural components are [Lambda](https://aws.amazon.com/lambda/), [DynamoDB](https://aws.amazon.com/dynamodb/), and [EventBridge](https://aws.amazon.com/eventbridge/).
 
 ## Explanation
