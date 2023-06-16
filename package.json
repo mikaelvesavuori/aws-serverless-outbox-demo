@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "npx sls offline --reloadHandler",
+    "test": "npx c8 -reporter=lcov ava",
     "deploy": "npx sls deploy",
     "teardown": "npx sls remove"
   },
@@ -15,10 +16,13 @@
     "mikrolog": "2"
   },
   "devDependencies": {
+    "@ava/typescript": "3",
     "@types/aws-lambda": "8",
     "@types/node": "18",
     "@typescript-eslint/eslint-plugin": "5",
     "@typescript-eslint/parser": "5",
+    "ava": "5",
+    "c8": "7",
     "eslint": "8",
     "eslint-config-prettier": "8",
     "eslint-plugin-prettier": "4",
@@ -29,5 +33,19 @@
     "serverless-offline": "12",
     "ts-node": "10",
     "typescript": "5"
+  },
+  "ava": {
+    "typescript": {
+      "rewritePaths": {
+        "src/": "lib/"
+      },
+      "compile": false
+    },
+    "files": [
+      "tests/unit/**/*.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   }
 }
