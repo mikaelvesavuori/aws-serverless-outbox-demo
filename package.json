@@ -1,0 +1,33 @@
+{
+  "name": "aws-serverless-outbox-demo",
+  "version": "1.0.0",
+  "description": "Demonstration of the outbox pattern with Lambda, DynamoDB, and EventBridge.",
+  "author": "Mikael Vesavuori",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx sls offline --reloadHandler",
+    "deploy": "npx sls deploy",
+    "teardown": "npx sls remove"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3",
+    "@aws-sdk/client-eventbridge": "3",
+    "mikrolog": "2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "8",
+    "@types/node": "18",
+    "@typescript-eslint/eslint-plugin": "5",
+    "@typescript-eslint/parser": "5",
+    "eslint": "8",
+    "eslint-config-prettier": "8",
+    "eslint-plugin-prettier": "4",
+    "prettier": "2",
+    "serverless": "3",
+    "serverless-esbuild": "1",
+    "serverless-iam-roles-per-function": "3",
+    "serverless-offline": "12",
+    "ts-node": "10",
+    "typescript": "5"
+  }
+}

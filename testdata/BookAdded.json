@@ -1,0 +1,11 @@
+{
+  "version": "0",
+  "id": "cd0b0ee8-c709-af33-5e44-0b842695475e",
+  "detail-type": "outboxdemo.added",
+  "source": "outboxdemo.processor",
+  "account": "450556678406",
+  "time": "2023-06-15T11:55:13Z",
+  "region": "eu-north-1",
+  "resources": [],
+  "detail": { "asdf": 123 }
+}

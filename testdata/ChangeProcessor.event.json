@@ -1,0 +1,40 @@
+{
+  "Records": [
+    {
+      "eventID": "530b33a8b4d74bde6263f1b65b0ec333",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "eu-north-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1686829226,
+        "Keys": {
+          "itemId": {
+            "S": "73630bd1-7eed-4693-8665-deb40b9a6a73"
+          },
+          "itemType": {
+            "S": "book"
+          }
+        },
+        "NewImage": {
+          "itemId": {
+            "S": "73630bd1-7eed-4693-8665-deb40b9a6a73"
+          },
+          "itemType": {
+            "S": "book"
+          },
+          "name": {
+            "S": "Team Topologies"
+          },
+          "value": {
+            "S": "22.95"
+          }
+        },
+        "SequenceNumber": "300000000026568543297",
+        "SizeBytes": 137,
+        "StreamViewType": "NEW_IMAGE"
+      },
+      "eventSourceARN": "arn:aws:dynamodb:eu-north-1:123412341234:table/outbox-demo/stream/2023-06-15T11:21:07.551"
+    }
+  ]
+}

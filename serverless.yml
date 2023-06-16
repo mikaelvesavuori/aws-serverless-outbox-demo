@@ -1,0 +1,138 @@
+service: dynamodb-outbox-demo
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  architecture: arm64
+  stage: ${opt:stage, 'prod'}
+  region: ${opt:region, 'eu-north-1'}
+  memorySize: ${opt:memory, 1024}
+  timeout: 10
+  logRetentionInDays: 7
+  versionFunctions: false
+  deploymentBucket:
+    blockPublicAccess: true
+    maxPreviousDeploymentArtifacts: 5
+    serverSideEncryption: AES256
+  stackTags:
+    service: ${self:service}
+    stage: ${self:provider.stage}
+    runtime: ${self:provider.runtime}
+    region: ${self:provider.region}
+  tags:
+    service: ${self:service}
+    stage: ${self:provider.stage}
+    runtime: ${self:provider.runtime}
+    region: ${self:provider.region}
+  apiGateway:
+    minimumCompressionSize: 1024
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+  - serverless-iam-roles-per-function
+
+package:
+  individually: true
+
+custom:
+  config:
+    awsAccountNumber: 450556678406
+    eventBusName: outbox-demo
+    tableName: outbox-demo
+  aws:
+    domainBusArn: arn:aws:events:${self:provider.region}:${self:custom.config.awsAccountNumber}:event-bus/${self:custom.config.eventBusName}
+    tableArn: arn:aws:dynamodb:${self:provider.region}:${self:custom.config.awsAccountNumber}:table/${self:custom.config.tableName}
+
+# The functions are ordered in the logical order they are run
+functions:
+  AddBook:
+    handler: src/AddBook.handler
+    description: Adds a book to the collection
+    events:
+      - httpApi:
+          method: POST
+          path: /book
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: ${self:custom.aws.tableArn}
+    environment:
+      REGION: ${self:provider.region}
+      TABLE_NAME: ${self:custom.config.tableName}
+
+  RemoveBook:
+    handler: src/RemoveBook.handler
+    description: Removes a book from the collection
+    events:
+      - httpApi:
+          method: DELETE
+          path: /book
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+        Resource: ${self:custom.aws.tableArn}
+    environment:
+      REGION: ${self:provider.region}
+      TABLE_NAME: ${self:custom.config.tableName}
+
+  ChangeProcessor:
+    handler: src/ChangeProcessor.handler
+    description: Lambda that acts on data changes in DynamoDB
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - OutboxTable
+              - StreamArn
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - events:PutEvents
+        Resource: ${self:custom.aws.domainBusArn}
+    environment:
+      REGION: ${self:provider.region}
+      EVENT_BUS_NAME: ${self:custom.config.eventBusName}
+
+  BookAdded:
+    handler: src/BookAdded.handler
+    description: Respond to a book being added
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.config.eventBusName} # Creates new EventBridge bus
+          pattern:
+            source:
+              - outboxdemo.processor
+            detail-type:
+              - outboxdemo.added
+
+  BookRemoved:
+    handler: src/BookRemoved.handler
+    description: Respond to a book being removed
+    events:
+      - eventBridge:
+          eventBus: ${self:custom.config.eventBusName}
+          pattern:
+            source:
+              - outboxdemo.processor
+            detail-type:
+              - outboxdemo.removed
+
+resources:
+  Resources:
+    OutboxTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.config.tableName}
+        AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: name
+            KeyType: HASH
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+        BillingMode: PAY_PER_REQUEST
