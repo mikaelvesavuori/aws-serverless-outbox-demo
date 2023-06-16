@@ -11,15 +11,7 @@ For our demo usecase we will have a collection of books which can be added or re
 When you call the API to add or remove a book...
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```
-
-```mermaid
-graph TD;
+graph LR;
     API_Gateway-->AddBook;
     AddBook-->DynamoDB;
     DynamoDB-->DynamoDB_Stream;
