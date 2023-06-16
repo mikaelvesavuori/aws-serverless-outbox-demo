@@ -55,6 +55,10 @@ You'll note the definition is longer, but no longer contains the `ChangeProcesso
 - Amazon Web Services (AWS) account with sufficient permissions so that you can deploy infrastructure.
 - Ideally some experience with [Serverless Framework](https://www.serverless.com) as that's what we will use to deploy the service and infrastructure.
 
+## Required configuration
+
+Make sure you enter your AWS account number in the respective `serverless.yml` file(s) under `custom.config.awsAccountNumber`.
+
 ## Installation
 
 Clone, fork, or download the repo as you normally would. Run `npm install`.
