@@ -16,7 +16,7 @@ graph LR;
     Lambda_AddBook-->DynamoDB;
     DynamoDB-->DynamoDB_Stream;
     DynamoDB_Stream-->Lambda_ChangeProcessor;
-    ChangeProcessor-->EventBridge_outboxdemo.added;
+    Lambda_ChangeProcessor-->EventBridge_outboxdemo.added;
     EventBridge_outboxdemo.added-->Lambda_BookAdded;
 ```
 
