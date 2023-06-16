@@ -16,8 +16,8 @@ export async function handler(event: APIGatewayProxyResultV2) {
     await removeBook(name);
 
     return {
-      statusCode: 200,
-      body: JSON.stringify('OK')
+      statusCode: 204,
+      body: JSON.stringify('')
     };
   } catch (error: any) {
     return {

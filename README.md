@@ -26,6 +26,50 @@ This solution uses a **single** table to bring the overall point across. It offe
 
 Using a table for the data itself, and a separate table for the events, brings additional freedom in bringing more information and context which downstream change data capture processors can work with. Please see [this article](https://betterprogramming.pub/implementing-the-transactional-outbox-pattern-with-eventbridge-pipes-125cb3f51f32) for more on such an evolution.
 
+---
+
+## Prerequisites
+
+- Recent [Node.js](https://nodejs.org/en/) (ideally 18+) installed.
+- Amazon Web Services (AWS) account with sufficient permissions so that you can deploy infrastructure. A naive but simple policy would be full rights for CloudWatch, Lambda, API Gateway, and S3.
+- Ideally some experience with [Serverless Framework](https://www.serverless.com) as that's what we will use to deploy the service and infrastructure.
+
+## Installation
+
+Clone, fork, or download the repo as you normally would. Run `npm install`.
+
+## Commands
+
+- `npm start`: Run application locally
+- `npm test`: Test the business/application logic with Jest
+- `npm run build`: Package application with Serverless Framework
+- `npm run deploy`: Deploy application to AWS with Serverless Framework
+- `npm run teardown`: Remove stack from AWS
+
+## Running locally
+
+Using `npm start` you can start using the local endpoint with `http://localhost:3000/{FUNCTION}` to call the service
+
+## API calls
+
+### Adding a book
+
+```bash
+curl -X POST -d @input.json http://localhost:3000/add
+```
+
+Which should respond back with a `201` status.
+
+### Removing a book
+
+```bash
+curl -X DELETE -d '{"name": "Team Topologies"}' http://localhost:3000/add
+```
+
+Which should respond back with a `204` status.
+
+---
+
 ## References
 
 - [Publishing EventBridge events with DynamoDB Streams](https://www.boyney.io/blog/2022-11-03-eventbridge-events-with-dynamodb)
