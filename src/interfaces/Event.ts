@@ -34,4 +34,4 @@ export type EventBridgeEvent = {
   Detail: string;
 };
 
-export type DetailType = 'outboxdemo.added' | 'outboxdemo.removed';
+export type DetailType = 'BookAdded' | 'BookRemoved';

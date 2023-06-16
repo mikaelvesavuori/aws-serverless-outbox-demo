@@ -78,6 +78,25 @@ functions:
       REGION: ${self:provider.region}
       TABLE_NAME: ${self:custom.config.tableName}
 
+  ChangeProcessor:
+    handler: src/ChangeProcessor.handler
+    description: Lambda that acts on data changes in DynamoDB
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - OutboxTable
+              - StreamArn
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - events:PutEvents
+        Resource: ${self:custom.aws.eventBusArn}
+    environment:
+      REGION: ${self:provider.region}
+      EVENT_BUS_NAME: ${self:custom.config.eventBusName}
+
   BookAdded:
     handler: src/BookAdded.handler
     description: Respond to a book being added
@@ -86,13 +105,9 @@ functions:
           eventBus: ${self:custom.config.eventBusName} # Creates new EventBridge bus
           pattern:
             source:
-              - OutboxDemo.Books
+              - OutboxDemo.ChangeProcessor
             detail-type:
               - BookAdded
-          inputTransformer:
-            inputPathsMap:
-              name: "$.detail.dynamodb.NewImage.name.S"
-            inputTemplate: '{"name": <name>}'
 
   BookRemoved:
     handler: src/BookRemoved.handler
@@ -102,13 +117,9 @@ functions:
           eventBus: ${self:custom.config.eventBusName}
           pattern:
             source:
-              - OutboxDemo.Books
+              - OutboxDemo.ChangeProcessor
             detail-type:
               - BookRemoved
-          inputTransformer:
-            inputPathsMap:
-              name: "$.detail.dynamodb.Keys.name.S"
-            inputTemplate: '{"name": <name>}'
 
 resources:
   Resources:
@@ -125,76 +136,3 @@ resources:
         StreamSpecification:
           StreamViewType: NEW_IMAGE
         BillingMode: PAY_PER_REQUEST
-
-    PipeRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                  - pipes.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        Policies:
-          - PolicyName: !Sub ${AWS::StackName}-source-policy
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - "dynamodb:DescribeStream"
-                    - "dynamodb:GetRecords"
-                    - "dynamodb:GetShardIterator"
-                    - "dynamodb:ListStreams"
-                  Resource: !GetAtt OutboxTable.StreamArn
-          - PolicyName: !Sub ${AWS::StackName}-target-policy
-            PolicyDocument:
-              Version: "2012-10-17"
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - "events:PutEvents"
-                  Resource: ${self:custom.aws.eventBusArn}
-
-    BookAddedPipe:
-      Type: AWS::Pipes::Pipe
-      Properties:
-        Name: !Sub ${AWS::StackName}-added
-        Description: "Pipes to connect to DDB stream listening only for insert changes"
-        RoleArn: !GetAtt PipeRole.Arn
-        Source: !GetAtt OutboxTable.StreamArn
-        SourceParameters:
-          FilterCriteria:
-            Filters:
-              - Pattern: '{ "eventName": ["INSERT"] }'
-          DynamoDBStreamParameters:
-            StartingPosition: LATEST
-            BatchSize: 1
-        Target: ${self:custom.aws.eventBusArn}
-        TargetParameters:
-          EventBridgeEventBusParameters:
-            DetailType: "BookAdded"
-            Source: "OutboxDemo.Books"
-
-    BookRemovedPipe:
-      Type: AWS::Pipes::Pipe
-      Properties:
-        Name: !Sub ${AWS::StackName}-removed
-        Description: "Pipes to connect to DDB stream listening only for remove changes"
-        RoleArn: !GetAtt PipeRole.Arn
-        Source: !GetAtt OutboxTable.StreamArn
-        SourceParameters:
-          FilterCriteria:
-            Filters:
-              - Pattern: '{ "eventName": ["REMOVE"] }'
-          DynamoDBStreamParameters:
-            StartingPosition: LATEST
-            BatchSize: 1
-        Target: ${self:custom.aws.eventBusArn}
-        TargetParameters:
-          EventBridgeEventBusParameters:
-            DetailType: "BookRemoved"
-            Source: "OutboxDemo.Books"

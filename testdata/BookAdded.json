@@ -1,8 +1,8 @@
 {
   "version": "0",
   "id": "69800592-8638-3773-d5ca-923b70f60963",
-  "detail-type": "outboxdemo.added",
-  "source": "outboxdemo.processor",
+  "detail-type": "OutboxDemo.BookAdded",
+  "source": "OutboxDemo.ChangeProcessor",
   "account": "123412341234",
   "time": "2023-06-16T09:30:40Z",
   "region": "eu-north-1",

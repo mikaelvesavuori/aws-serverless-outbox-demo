@@ -21,9 +21,9 @@ export function createEvents(records: DynamoDBRecord[]): EventBridgeEvent[] {
   return <EventBridgeEvent[]>filteredRecords.map((record: DynamoDBRecord) => {
     const eventName = record.eventName;
     if (eventName === 'INSERT')
-      return produceEventBridgeEvent(cleanAddedInput(record), 'outboxdemo.added', eventBusName);
+      return produceEventBridgeEvent(cleanAddedInput(record), 'BookAdded', eventBusName);
     else if (eventName === 'REMOVE')
-      return produceEventBridgeEvent(cleanRemovedInput(record), 'outboxdemo.removed', eventBusName);
+      return produceEventBridgeEvent(cleanRemovedInput(record), 'BookRemoved', eventBusName);
   });
 }
 
@@ -88,7 +88,7 @@ function produceEventBridgeEvent(
 ) {
   return {
     EventBusName: eventBusName,
-    Source: 'outboxdemo.processor',
+    Source: 'OutboxDemo.ChangeProcessor',
     DetailType: detailType,
     Detail: JSON.stringify(eventDetails)
   };
