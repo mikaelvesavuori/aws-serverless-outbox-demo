@@ -1,8 +1,8 @@
 # AWS inbox pattern demo: DynamoDB, EventBridge, Lambda
 
-This repository demonstrates the serverless [outbox pattern](https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/aws-reference-architecture-hybrid-domain-consistency-ra.pdf?did=wp_card&trk=wp_card) as applied to a serverless architecture in AWS. An easier execution than many traditional similar solutions, here we can use DynamoDB and its Streams capability to solve the messaging/queuing otherwise required.
+This repository demonstrates the serverless [outbox pattern](https://d1.awsstatic.com/architecture-diagrams/ArchitectureDiagrams/aws-reference-architecture-hybrid-domain-consistency-ra.pdf?did=wp_card&trk=wp_card) as applied to a serverless architecture in AWS. An easier execution than many traditional similar solutions, here we can use DynamoDB and its [Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html) capability to solve the messaging/queuing otherwise required.
 
-The key infrastructural components are Lambda, DynamoDB, and EventBridge.
+The key infrastructural components are [Lambda](https://aws.amazon.com/lambda/), [DynamoDB](https://aws.amazon.com/dynamodb/), and [EventBridge](https://aws.amazon.com/eventbridge/).
 
 ## Explanation
 
@@ -26,11 +26,11 @@ Incoming calls run the appropriate function to add or remove a book. The functio
 
 ### Limitations and a more elaborate solution
 
-You've seen that this solution uses a **single** table to bring the overall point across. It offers a relatively basic solution to the problem but is also potentially more limited in flexibility. In this type of solution, we are limited to the context of the data that is persisted (optimized, of course, for such use) and an event name based on the database operation, i.e. `INSERT` and `REMOVE`. It may be hard to granularly emit (integration) events to the rest of your landscape based on rich context.
+You've seen that this solution uses a **single** table to bring the overall point across. It offers a relatively basic solution to the problem but is also potentially more limited in flexibility. In this type of solution, we are limited to the context of the data that is persisted (optimized, of course, for such use) and an event name based on the database operation, i.e. `INSERT` and `REMOVE`. It may be hard to granularly emit (integration) events to the rest of your landscape based on rich context, if you're doing it this way.
 
-Separate tables for the data and the events brings additional freedom in allowing more information and context which downstream receivers can work with. Please see [this article](https://betterprogramming.pub/implementing-the-transactional-outbox-pattern-with-eventbridge-pipes-125cb3f51f32) for more on such an evolution, which uses a separate events tables as well as EventBridge Pipes for configuration-driven processing.
+_Separate tables for the data and the events brings additional freedom in allowing more information and context which downstream receivers can work with. Please see [this article](https://betterprogramming.pub/implementing-the-transactional-outbox-pattern-with-eventbridge-pipes-125cb3f51f32) for more on such an evolution, which uses a separate events tables as well as EventBridge Pipes for configuration-driven processing._
 
-We'll address at least one more part here, and that's using EventBridge Pipes to allow for configuration over code.
+We'll address at least one more improvement here, and that's using [EventBridge Pipes](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html) to allow for configuration over code.
 
 ```mermaid
 graph LR;
@@ -43,7 +43,7 @@ graph LR;
 
 **For this next section the corresponding definition file is `serverless.yml`.**
 
-You'll note it's longer, but no longer contains the `ChangeProcessor`—this is, as expected, because we now use the Pipe to pass the data as events, instead of running a Lambda with somewhat complicated code to process the change data and emitting the events. An extra bonus is we use the input transformers to simplify the payloads that are used by receiving functions. More importantly, we've now also gained the capability to more easily express what filters we want to use on the data before it ends up as an event. See `BookAddedPipe` and `BookRemovedPipe` for more details.
+You'll note the definition is longer, but no longer contains the `ChangeProcessor`—this is, as expected, because we now use the Pipe to pass the data as events, instead of running a Lambda with somewhat complicated code to process the change data and emitting the events. An extra bonus is we use [input transformers](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-transform-target-input.html) to simplify the payloads that are used by receiving functions. More importantly, we've now also gained the capability to more easily express what filters we want to use on the data before it ends up as an event. See `BookAddedPipe` and `BookRemovedPipe` in the definition for more details.
 
 ---
 

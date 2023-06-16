@@ -7,6 +7,7 @@
   "scripts": {
     "start": "npx sls offline --reloadHandler",
     "test": "npx c8 -reporter=lcov ava",
+    "build": "npx sls package",
     "deploy": "npx sls deploy",
     "teardown": "npx sls remove"
   },
