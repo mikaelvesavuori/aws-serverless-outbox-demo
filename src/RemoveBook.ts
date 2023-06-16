@@ -1,10 +1,9 @@
 import { APIGatewayProxyResultV2 } from 'aws-lambda';
 
 import { getBody } from './application/getBody';
+import { getName } from './application/getName';
 
 import { createNewBookRepository } from './infrastructure/BookRepository';
-
-import { InvalidInputError } from './errors/InvalidInputError';
 
 /**
  * @description Lambda handler for `RemoveBook` functionality.
@@ -12,8 +11,7 @@ import { InvalidInputError } from './errors/InvalidInputError';
 export async function handler(event: APIGatewayProxyResultV2) {
   try {
     const body = getBody(event);
-    const name = (body.name as string) || '';
-    if (!name) throw new InvalidInputError(`Missing "name" in input!`);
+    const name = getName(body);
 
     await removeBook(name);
 
