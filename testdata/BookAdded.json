@@ -1,11 +1,15 @@
 {
   "version": "0",
-  "id": "cd0b0ee8-c709-af33-5e44-0b842695475e",
+  "id": "69800592-8638-3773-d5ca-923b70f60963",
   "detail-type": "outboxdemo.added",
   "source": "outboxdemo.processor",
-  "account": "450556678406",
-  "time": "2023-06-15T11:55:13Z",
+  "account": "123412341234",
+  "time": "2023-06-16T09:30:40Z",
   "region": "eu-north-1",
   "resources": [],
-  "detail": { "asdf": 123 }
+  "detail": {
+    "name": "Team Topologies",
+    "authors": ["Manuel Pais", "Matthew Skelton"],
+    "publishedYear": 2019
+  }
 }

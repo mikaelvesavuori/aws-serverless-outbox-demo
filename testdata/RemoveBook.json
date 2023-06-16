@@ -1,0 +1,37 @@
+{
+  "version": "2.0",
+  "routeKey": "DELETE /book",
+  "rawPath": "/book",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "*/*",
+    "content-length": "30",
+    "content-type": "application/json",
+    "host": "7k4m3twqg5.execute-api.eu-north-1.amazonaws.com",
+    "user-agent": "insomnia/2023.2.2",
+    "x-amzn-trace-id": "Root=1-648c2c3d-322cb2591192cabe18834b81",
+    "x-forwarded-for": "192.168.0.1",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+    "accountId": "123412341234",
+    "apiId": "7k4m3twqg5",
+    "domainName": "7k4m3twqg5.execute-api.eu-north-1.amazonaws.com",
+    "domainPrefix": "7k4m3twqg5",
+    "http": {
+      "method": "DELETE",
+      "path": "/book",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "192.168.0.1",
+      "userAgent": "insomnia/2023.2.2"
+    },
+    "requestId": "GmvZnj3bgi0EMSA=",
+    "routeKey": "DELETE /book",
+    "stage": "$default",
+    "time": "16/Jun/2023:09:32:45 +0000",
+    "timeEpoch": 1686907965202
+  },
+  "body": "{\n\t\"name\": \"Team Topologies\"\n}",
+  "isBase64Encoded": false
+}

@@ -1,40 +1,34 @@
 {
   "Records": [
     {
-      "eventID": "530b33a8b4d74bde6263f1b65b0ec333",
+      "eventID": "1c10cb9f8bdbf26033d4cbeea6435518",
       "eventName": "INSERT",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
       "awsRegion": "eu-north-1",
       "dynamodb": {
-        "ApproximateCreationDateTime": 1686829226,
+        "ApproximateCreationDateTime": 1686907839,
         "Keys": {
-          "itemId": {
-            "S": "73630bd1-7eed-4693-8665-deb40b9a6a73"
-          },
-          "itemType": {
-            "S": "book"
+          "name": {
+            "S": "Team Topologies"
           }
         },
         "NewImage": {
-          "itemId": {
-            "S": "73630bd1-7eed-4693-8665-deb40b9a6a73"
-          },
-          "itemType": {
-            "S": "book"
-          },
           "name": {
             "S": "Team Topologies"
           },
-          "value": {
-            "S": "22.95"
+          "publishedYear": {
+            "N": "2019"
+          },
+          "authors": {
+            "SS": ["Manuel Pais", "Matthew Skelton"]
           }
         },
-        "SequenceNumber": "300000000026568543297",
-        "SizeBytes": 137,
+        "SequenceNumber": "3842500000000003320447898",
+        "SizeBytes": 87,
         "StreamViewType": "NEW_IMAGE"
       },
-      "eventSourceARN": "arn:aws:dynamodb:eu-north-1:123412341234:table/outbox-demo/stream/2023-06-15T11:21:07.551"
+      "eventSourceARN": "arn:aws:dynamodb:eu-north-1:123412341234:table/outbox-demo/stream/2023-06-15T13:24:44.930"
     }
   ]
 }

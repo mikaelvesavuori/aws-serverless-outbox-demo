@@ -1,0 +1,37 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /book",
+  "rawPath": "/book",
+  "rawQueryString": "",
+  "headers": {
+    "accept": "*/*",
+    "content-length": "100",
+    "content-type": "application/json",
+    "host": "abcde12345.execute-api.eu-north-1.amazonaws.com",
+    "user-agent": "insomnia/2023.2.2",
+    "x-amzn-trace-id": "Root=1-648c2bbe-3474b1e21496655c12ba5875",
+    "x-forwarded-for": "192.168.0.1",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "requestContext": {
+    "accountId": "123412341234",
+    "apiId": "abcde12345",
+    "domainName": "abcde12345.execute-api.eu-north-1.amazonaws.com",
+    "domainPrefix": "abcde12345",
+    "http": {
+      "method": "POST",
+      "path": "/book",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "192.168.0.1",
+      "userAgent": "insomnia/2023.2.2"
+    },
+    "requestId": "GmvF4inegi0EP0g=",
+    "routeKey": "POST /book",
+    "stage": "$default",
+    "time": "16/Jun/2023:09:30:38 +0000",
+    "timeEpoch": 1686907838944
+  },
+  "body": "{\n\t\"name\": \"Team Topologies\",\n\t\"authors\": [\n\t\t\"Manuel Pais\",\n\t\t\"Matthew Skelton\"\n\t],\n\t\"year\": 2019\n}",
+  "isBase64Encoded": false
+}

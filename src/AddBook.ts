@@ -19,8 +19,7 @@ export async function handler(event: APIGatewayProxyEventV2) {
     await addBook(book.getDTO());
 
     return {
-      statusCode: 201,
-      body: JSON.stringify('')
+      statusCode: 201
     };
   } catch (error: any) {
     return {

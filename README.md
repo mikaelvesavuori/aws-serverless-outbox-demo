@@ -48,7 +48,7 @@ Clone, fork, or download the repo as you normally would. Run `npm install`.
 
 ## Running locally
 
-Using `npm start` you can start using the local endpoint with `http://localhost:3000/{FUNCTION}` to call the service
+Using `npm start` you can start using the local endpoint with `http://localhost:3000/{FUNCTION}` to call the service. See example calls below.
 
 ## API calls
 

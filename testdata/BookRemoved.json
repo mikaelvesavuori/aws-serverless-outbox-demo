@@ -1,0 +1,13 @@
+{
+  "version": "0",
+  "id": "acca28d0-6f76-68b8-5dc6-82e6f9714591",
+  "detail-type": "outboxdemo.removed",
+  "source": "outboxdemo.processor",
+  "account": "123412341234",
+  "time": "2023-06-16T09:38:08Z",
+  "region": "eu-north-1",
+  "resources": [],
+  "detail": {
+    "name": "Team Topologies"
+  }
+}
