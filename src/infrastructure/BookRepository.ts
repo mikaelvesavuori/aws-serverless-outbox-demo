@@ -5,11 +5,11 @@ import {
   TransactWriteItemsCommand,
   TransactWriteItemsCommandInput
 } from '@aws-sdk/client-dynamodb';
+import { randomUUID } from 'crypto';
 
 import { BookDTO } from '../interfaces/Book';
 
 import { MissingEnvVarsError } from '../errors/MissingEnvVarsError';
-import { randomUUID } from 'crypto';
 
 export function createNewBookRepository() {
   return new BookRepository();

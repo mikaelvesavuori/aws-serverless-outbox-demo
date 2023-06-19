@@ -1,14 +1,12 @@
-import { APIGatewayProxyResultV2 } from 'aws-lambda';
-
-import { MissingRequestBodyError } from '../errors/MissingRequestBodyError';
-
 /**
  * @description Gets a ready-to-use JSON representation of the POST body.
  */
-export function getBody(event: APIGatewayProxyResultV2 | any) {
-  const body: Record<string, string | number> =
-    typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
-  if (!body || JSON.stringify(body) === '{}') throw new MissingRequestBodyError();
+export function getBody(event: any) {
+  const isBase64Encoded = event?.isBase64Encoded;
+  if (!isBase64Encoded) return typeof event.body === 'string' ? JSON.parse(event.body) : event.body;
 
-  return body;
+  const decodedBody = decodeURIComponent(bufferToString(event.body));
+  return JSON.parse(decodedBody);
 }
+
+const bufferToString = (input: string) => Buffer.from(input, 'base64').toString();

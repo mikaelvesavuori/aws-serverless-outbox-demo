@@ -37,7 +37,7 @@ package:
 
 custom:
   config:
-    awsAccountNumber: 123412341234
+    awsAccountNumber: "450556678406"
     eventBusName: outbox-demo
     tableName: outbox-demo
   aws:
@@ -47,7 +47,7 @@ custom:
 # The functions are ordered in the logical order they are run
 functions:
   AddBook:
-    handler: src/AddBook.handler
+    handler: src/AddBookCDC.handler
     description: Adds a book to the collection
     events:
       - httpApi:
@@ -63,7 +63,7 @@ functions:
       TABLE_NAME: ${self:custom.config.tableName}
 
   RemoveBook:
-    handler: src/RemoveBook.handler
+    handler: src/RemoveBookCDC.handler
     description: Removes a book from the collection
     events:
       - httpApi:
@@ -98,7 +98,7 @@ functions:
       EVENT_BUS_NAME: ${self:custom.config.eventBusName}
 
   BookAdded:
-    handler: src/BookAdded.handler
+    handler: src/BookAddedCDC.handler
     description: Respond to a book being added
     events:
       - eventBridge:
@@ -110,7 +110,7 @@ functions:
               - BookAdded
 
   BookRemoved:
-    handler: src/BookRemoved.handler
+    handler: src/BookRemovedCDC.handler
     description: Respond to a book being removed
     events:
       - eventBridge:

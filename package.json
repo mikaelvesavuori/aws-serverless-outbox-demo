@@ -9,7 +9,9 @@
     "test": "npx c8 -reporter=lcov ava",
     "build": "npx sls package",
     "deploy": "npx sls deploy",
-    "teardown": "npx sls remove"
+    "deploy:cdc": "npx sls deploy --config serverless.cdc.yml",
+    "teardown": "npx sls remove",
+    "teardown:cdc": "npx sls remove --config serverless.cdc.yml"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3",
