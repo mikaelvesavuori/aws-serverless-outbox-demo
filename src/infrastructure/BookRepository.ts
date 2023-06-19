@@ -2,13 +2,14 @@ import {
   DeleteItemCommand,
   DeleteItemCommandInput,
   DynamoDBClient,
-  PutItemCommand,
-  PutItemCommandInput
+  TransactWriteItemsCommand,
+  TransactWriteItemsCommandInput
 } from '@aws-sdk/client-dynamodb';
 
 import { BookDTO } from '../interfaces/Book';
 
 import { MissingEnvVarsError } from '../errors/MissingEnvVarsError';
+import { randomUUID } from 'crypto';
 
 export function createNewBookRepository() {
   return new BookRepository();
@@ -20,18 +21,21 @@ export function createNewBookRepository() {
  */
 class BookRepository {
   docClient: DynamoDBClient;
-  tableName: string;
   region: string;
+  booksTableName: string;
+  eventsTableName: string;
 
   constructor() {
     this.region = process.env.REGION || '';
-    this.tableName = process.env.TABLE_NAME || '';
+    this.booksTableName = process.env.BOOKS_TABLE_NAME || '';
+    this.eventsTableName = process.env.EVENTS_TABLE_NAME || '';
 
-    if (!this.region || !this.tableName)
+    if (!this.region || !this.booksTableName || !this.eventsTableName)
       throw new MissingEnvVarsError(
         JSON.stringify([
           { key: 'REGION', value: process.env.REGION },
-          { key: 'TABLE_NAME', value: process.env.TABLE_NAME }
+          { key: 'TABLE_NAME', value: process.env.TABLE_NAME },
+          { key: 'EVENTS_TABLE_NAME', value: process.env.EVENTS_TABLE_NAME }
         ])
       );
 
@@ -39,30 +43,52 @@ class BookRepository {
   }
 
   /**
-   * @description Add (create/update) a book in the database.
+   * @description Add (create/update) a book to the database.
    */
   public async add(book: BookDTO): Promise<void> {
     const { name, authors, year } = book;
-    const command: PutItemCommandInput = {
-      TableName: this.tableName,
-      Item: {
-        name: { S: name },
-        authors: { SS: authors },
-        publishedYear: { N: year.toString() }
-      }
+    const id = randomUUID();
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+
+    const command: TransactWriteItemsCommandInput = {
+      TransactItems: [
+        {
+          Put: {
+            TableName: this.booksTableName,
+            Item: {
+              pk: { S: name },
+              authors: { SS: authors },
+              publishedYear: { N: year.toString() },
+              id: { S: id }
+            }
+          }
+        },
+        {
+          Put: {
+            TableName: this.eventsTableName,
+            Item: {
+              pk: { S: id },
+              sk: { S: timestamp },
+              eventType: { S: 'BookAdded' },
+              eventData: { S: JSON.stringify(book) }
+            }
+          }
+        }
+      ]
     };
 
-    if (process.env.NODE_ENV !== 'test') await this.docClient.send(new PutItemCommand(command));
+    if (process.env.NODE_ENV !== 'test')
+      await this.docClient.send(new TransactWriteItemsCommand(command));
   }
 
   /**
-   * @description Remove a book in the database.
+   * @description Remove a book from the database.
    */
   public async remove(bookName: string): Promise<void> {
     const command: DeleteItemCommandInput = {
-      TableName: this.tableName,
+      TableName: this.booksTableName,
       Key: {
-        name: { S: bookName }
+        pk: { S: bookName }
       }
     };
 

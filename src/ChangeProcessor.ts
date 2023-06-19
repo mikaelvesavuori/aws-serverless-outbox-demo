@@ -26,6 +26,6 @@ export async function handler(event: DynamoDBStreamEvent) {
  * @description Emit the events.
  */
 async function emitEvents(entries: EventBridgeEvent[]) {
-  const eb = createNewEventBridgeEmitter();
-  await eb.emit(entries);
+  const emitter = createNewEventBridgeEmitter();
+  await emitter.emit(entries);
 }

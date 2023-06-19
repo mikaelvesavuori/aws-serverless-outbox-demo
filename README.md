@@ -28,22 +28,40 @@ Incoming calls run the appropriate function to add or remove a book. The functio
 
 ### Limitations and a more elaborate solution
 
-You've seen that this solution uses a **single** table to bring the overall point across. It offers a relatively basic solution to the problem but is also potentially more limited in flexibility. In this type of solution, we are limited to the context of the data that is persisted (optimized, of course, for such use) and an event name based on the database operation, i.e. `INSERT` and `REMOVE`. It may be hard to granularly emit (integration) events to the rest of your landscape based on rich context, if you're doing it this way.
+**For this next section the corresponding definition file is `serverless.yml`.**
 
-_Separate tables for the data and the events brings additional freedom in allowing more information and context which downstream receivers can work with. Please see [this article](https://betterprogramming.pub/implementing-the-transactional-outbox-pattern-with-eventbridge-pipes-125cb3f51f32) for more on such an evolution, which uses a separate events tables as well as EventBridge Pipes for configuration-driven processing._
+You've seen that the first solution uses a **single** table to bring the overall point across. It offers a relatively basic solution to the problem but is also potentially more limited in flexibility. In this type of solution, we are limited to the context of the data that is persisted (optimized, of course, for such use) and an event name based on the database operation, i.e. `INSERT` and `REMOVE`. It may be hard to granularly emit (integration) events to the rest of your landscape based on rich context, if you're doing it this way.
 
-We'll address at least one more improvement here, and that's using [EventBridge Pipes](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html) to allow for configuration over code.
+Separate tables for the data and the events brings additional freedom in allowing more information and context which downstream receivers can work with.
+
+#### Multiple tables
+
+We'll address a few more improvements here, the first one being using multiple tables: Two for the implied "producer" and one for the implicit "consumer" of things happening in the system.
+
+The three tables are:
+
+- `BooksTable` (producer): Where books are added and removed from
+- `EventsTable` (producer): Every event that happens gets stored in this table
+- `PresentationTable` (consumer): Contains a short-living list of incoming "book added" events to ensure we don't act on the same event more than once
+
+Next, you will see how these improve our flow.
+
+#### EventBridge Pipes and configuration-driven systems
+
+W'll be using [EventBridge Pipes](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html) to allow for configuration over (regular) code to control our system.
+
+The overall flow ends up being:
 
 ```mermaid
 graph LR;
     APIGateway-->Lambda_AddBook;
-    Lambda_AddBook-->DynamoDB;
-    DynamoDB-->DynamoDB_Stream;
+    Lambda_AddBook-->DynamoDB_BooksTable;
+    Lambda_AddBook-->DynamoDB_EventsTable;
+    DynamoDB_EventsTable-->DynamoDB_Stream;
     DynamoDB_Stream-->EventBridgePipe;
     EventBridgePipe-->Lambda_BookAdded;
+    Lambda_BookAdded-->DynamoDB_PresentationTable;
 ```
-
-**For this next section the corresponding definition file is `serverless.yml`.**
 
 You'll note the definition is longer, but no longer contains the `ChangeProcessor`—this is, as expected, because we now use the Pipe to pass the data as events, instead of running a Lambda with somewhat complicated code to process the change data and emitting the events. An extra bonus is we use [input transformers](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-transform-target-input.html) to simplify the payloads that are used by receiving functions. More importantly, we've now also gained the capability to more easily express what filters we want to use on the data before it ends up as an event. See `BookAddedPipe` and `BookRemovedPipe` in the definition for more details.
 
@@ -80,7 +98,7 @@ Using `npm start` you can start using the local endpoint with `http://localhost:
 ### Adding a book
 
 ```bash
-curl -X POST -d @input.json http://localhost:3000/book
+curl -X POST -d @input.json -H 'Content-Type: application/json' http://localhost:3000/book
 ```
 
 Which should respond back with a `201` status.
@@ -88,7 +106,7 @@ Which should respond back with a `201` status.
 ### Removing a book
 
 ```bash
-curl -X DELETE -d '{"name": "Team Topologies"}' http://localhost:3000/book
+curl -X DELETE -d '{"name": "Team Topologies"}' 'Content-Type: application/json' http://localhost:3000/book
 ```
 
 Which should respond back with a `204` status.
@@ -100,6 +118,8 @@ Which should respond back with a `204` status.
 - [Publishing EventBridge events with DynamoDB Streams](https://www.boyney.io/blog/2022-11-03-eventbridge-events-with-dynamodb)
 - [Outbox pattern with DynamoDB and EventBridge](https://serverlessland.com/patterns/dynamodb-streams-to-eventbridge-outbox-pattern)
 - [Change data capture events into multiple EventBridge pipes](https://serverlessland.com/patterns/eventbridge-pipes-ddbstream-with-filters-to-eventbridge)
+- [Implementing a Transactional Outbox Pattern with DynamoDB Streams to Avoid 2-phase Commits](https://medium.com/ssense-tech/implementing-a-transactional-outbox-pattern-with-dynamodb-streams-to-avoid-2-phase-commits-ed0f91e69e9)
+- [Your Lambda function might execute twice. Be prepared!](https://cloudonaut.io/your-lambda-function-might-execute-twice-deal-with-it/)
 
 A more elaborate version is outlined at:
 

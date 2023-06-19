@@ -30,6 +30,6 @@ export async function handler(event: APIGatewayProxyResultV2) {
  * @description Removes a Book from the repository.
  */
 export async function removeBook(bookName: string) {
-  const ddb = createNewBookRepository();
-  await ddb.remove(bookName);
+  const repository = createNewBookRepository();
+  await repository.remove(bookName);
 }

@@ -33,6 +33,6 @@ export async function handler(event: APIGatewayProxyEventV2) {
  * @description Adds a Book to the repository.
  */
 export async function addBook(book: BookDTO) {
-  const ddb = createNewBookRepository();
-  await ddb.add(book);
+  const repository = createNewBookRepository();
+  await repository.add(book);
 }

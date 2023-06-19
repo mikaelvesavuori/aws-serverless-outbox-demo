@@ -37,14 +37,17 @@ package:
 
 custom:
   config:
-    awsAccountNumber: 123412341234
-    eventBusName: outbox-demo
-    tableName: outbox-demo
+    awsAccountNumber: "123412341234"
+    eventBusName: ${self:service}
+    eventsTableName: ${self:service}-events
+    booksTableName: ${self:service}-books
+    presentationTableName: ${self:service}-presentation
   aws:
     eventBusArn: arn:aws:events:${self:provider.region}:${self:custom.config.awsAccountNumber}:event-bus/${self:custom.config.eventBusName}
-    tableArn: arn:aws:dynamodb:${self:provider.region}:${self:custom.config.awsAccountNumber}:table/${self:custom.config.tableName}
+    eventsTableArn: arn:aws:dynamodb:${self:provider.region}:${self:custom.config.awsAccountNumber}:table/${self:custom.config.eventsTableName}
+    booksTableArn: arn:aws:dynamodb:${self:provider.region}:${self:custom.config.awsAccountNumber}:table/${self:custom.config.booksTableName}
+    presentationTableArn: arn:aws:dynamodb:${self:provider.region}:${self:custom.config.awsAccountNumber}:table/${self:custom.config.presentationTableName}
 
-# The functions are ordered in the logical order they are run
 functions:
   AddBook:
     handler: src/AddBook.handler
@@ -57,10 +60,15 @@ functions:
       - Effect: "Allow"
         Action:
           - dynamodb:PutItem
-        Resource: ${self:custom.aws.tableArn}
+        Resource: ${self:custom.aws.eventsTableArn}
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: ${self:custom.aws.booksTableArn}
     environment:
       REGION: ${self:provider.region}
-      TABLE_NAME: ${self:custom.config.tableName}
+      EVENTS_TABLE_NAME: ${self:custom.config.eventsTableName}
+      BOOKS_TABLE_NAME: ${self:custom.config.booksTableName}
 
   RemoveBook:
     handler: src/RemoveBook.handler
@@ -73,10 +81,11 @@ functions:
       - Effect: "Allow"
         Action:
           - dynamodb:DeleteItem
-        Resource: ${self:custom.aws.tableArn}
+        Resource: ${self:custom.aws.booksTableArn}
     environment:
       REGION: ${self:provider.region}
-      TABLE_NAME: ${self:custom.config.tableName}
+      EVENTS_TABLE_NAME: ${self:custom.config.eventsTableName}
+      BOOKS_TABLE_NAME: ${self:custom.config.booksTableName}
 
   BookAdded:
     handler: src/BookAdded.handler
@@ -91,8 +100,18 @@ functions:
               - BookAdded
           inputTransformer:
             inputPathsMap:
-              name: "$.detail.dynamodb.NewImage.name.S"
-            inputTemplate: '{"name": <name>}'
+              id: "$.detail.dynamodb.NewImage.pk.S"
+              eventData: "$.detail.dynamodb.NewImage.eventData.S"
+            inputTemplate: '{"id": <id>,"eventData": <eventData>}'
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:Query
+        Resource: ${self:custom.aws.presentationTableArn}
+    environment:
+      REGION: ${self:provider.region}
+      TABLE_NAME: ${self:custom.config.presentationTableName}
 
   BookRemoved:
     handler: src/BookRemoved.handler
@@ -107,23 +126,54 @@ functions:
               - BookRemoved
           inputTransformer:
             inputPathsMap:
-              name: "$.detail.dynamodb.Keys.name.S"
+              name: "$.detail.dynamodb.Keys.pk.S"
             inputTemplate: '{"name": <name>}'
 
 resources:
   Resources:
-    OutboxTable:
+    BooksTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.config.tableName}
+        TableName: ${self:custom.config.booksTableName}
         AttributeDefinitions:
-          - AttributeName: name
+          - AttributeName: pk
             AttributeType: S
         KeySchema:
-          - AttributeName: name
+          - AttributeName: pk
             KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    EventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.config.eventsTableName}
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
         StreamSpecification:
           StreamViewType: NEW_IMAGE
+        BillingMode: PAY_PER_REQUEST
+
+    PresentationTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.config.presentationTableName}
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+        TimeToLiveSpecification:
+          AttributeName: expiresAt
+          Enabled: true
         BillingMode: PAY_PER_REQUEST
 
     PipeRole:
@@ -149,7 +199,7 @@ resources:
                     - "dynamodb:GetRecords"
                     - "dynamodb:GetShardIterator"
                     - "dynamodb:ListStreams"
-                  Resource: !GetAtt OutboxTable.StreamArn
+                  Resource: !GetAtt EventsTable.StreamArn
           - PolicyName: !Sub ${AWS::StackName}-target-policy
             PolicyDocument:
               Version: "2012-10-17"
@@ -165,7 +215,7 @@ resources:
         Name: !Sub ${AWS::StackName}-added
         Description: "Pipes to connect to DDB stream listening only for insert changes"
         RoleArn: !GetAtt PipeRole.Arn
-        Source: !GetAtt OutboxTable.StreamArn
+        Source: !GetAtt EventsTable.StreamArn
         SourceParameters:
           FilterCriteria:
             Filters:
@@ -185,14 +235,14 @@ resources:
         Name: !Sub ${AWS::StackName}-removed
         Description: "Pipes to connect to DDB stream listening only for remove changes"
         RoleArn: !GetAtt PipeRole.Arn
-        Source: !GetAtt OutboxTable.StreamArn
+        Source: !GetAtt EventsTable.StreamArn
         SourceParameters:
           FilterCriteria:
             Filters:
               - Pattern: '{ "eventName": ["REMOVE"] }'
           DynamoDBStreamParameters:
             StartingPosition: LATEST
-            BatchSize: 1
+            BatchSize: 1 # Safer but more expensive if high volumes of changes are happening
         Target: ${self:custom.aws.eventBusArn}
         TargetParameters:
           EventBridgeEventBusParameters:
