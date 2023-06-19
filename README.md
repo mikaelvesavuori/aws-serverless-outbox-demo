@@ -110,7 +110,7 @@ Which should respond back with a `201` status.
 ### Removing a book
 
 ```bash
-curl -X DELETE -d '{"name": "Team Topologies"}' 'Content-Type: application/json' http://localhost:3000/book
+curl -X DELETE -d '{"name": "Team Topologies"}' http://localhost:3000/book
 ```
 
 Which should respond back with a `204` status.
