@@ -121,6 +121,6 @@ Which should respond back with a `204` status.
 - [Implementing a Transactional Outbox Pattern with DynamoDB Streams to Avoid 2-phase Commits](https://medium.com/ssense-tech/implementing-a-transactional-outbox-pattern-with-dynamodb-streams-to-avoid-2-phase-commits-ed0f91e69e9)
 - [Your Lambda function might execute twice. Be prepared!](https://cloudonaut.io/your-lambda-function-might-execute-twice-deal-with-it/)
 
-A more elaborate version is outlined at:
+A more elaborate version I was inspired by is outlined at:
 
 - [Implementing the Transactional Outbox Pattern With EventBridge Pipes](https://betterprogramming.pub/implementing-the-transactional-outbox-pattern-with-eventbridge-pipes-125cb3f51f32)
