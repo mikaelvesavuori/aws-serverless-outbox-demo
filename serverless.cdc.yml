@@ -1,4 +1,4 @@
-service: dynamodb-outbox-demo
+service: dynamodb-outbox-demo-cdc
 
 provider:
   name: aws
@@ -37,9 +37,9 @@ package:
 
 custom:
   config:
-    awsAccountNumber: "450556678406"
-    eventBusName: outbox-demo
-    tableName: outbox-demo
+    awsAccountNumber: "123412341234"
+    eventBusName: ${self:service}
+    tableName: ${self:service}
   aws:
     eventBusArn: arn:aws:events:${self:provider.region}:${self:custom.config.awsAccountNumber}:event-bus/${self:custom.config.eventBusName}
     tableArn: arn:aws:dynamodb:${self:provider.region}:${self:custom.config.awsAccountNumber}:table/${self:custom.config.tableName}

@@ -1,6 +1,6 @@
 {
   "name": "aws-serverless-outbox-demo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Demonstration of the outbox pattern with Lambda, DynamoDB, and EventBridge.",
   "author": "Mikael Vesavuori",
   "license": "MIT",
