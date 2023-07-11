@@ -119,6 +119,7 @@ Which should respond back with a `204` status.
 
 ## References
 
+- [Decoupling event publishing with Amazon EventBridge Pipes](https://aws.amazon.com/blogs/compute/decoupling-event-publishing-with-amazon-eventbridge-pipes/)
 - [Publishing EventBridge events with DynamoDB Streams](https://www.boyney.io/blog/2022-11-03-eventbridge-events-with-dynamodb)
 - [Outbox pattern with DynamoDB and EventBridge](https://serverlessland.com/patterns/dynamodb-streams-to-eventbridge-outbox-pattern)
 - [Change data capture events into multiple EventBridge pipes](https://serverlessland.com/patterns/eventbridge-pipes-ddbstream-with-filters-to-eventbridge)
